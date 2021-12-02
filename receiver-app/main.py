@@ -8,6 +8,7 @@ DISCOVERY_PORT = 5001
 
 pag.FAILSAFE = False
 pag.PAUSE = 0
+connected = False
 
 
 async def advertise():
@@ -17,6 +18,8 @@ async def advertise():
 
     # broadcast to the LAN
     while True:
+        if connected is True:
+            return
         print("advertising...")
         udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         udp_socket.sendto(b'Hello', ('<broadcast>', DISCOVERY_PORT))
@@ -25,6 +28,8 @@ async def advertise():
 
 async def handle_client(reader, _):
     print("connected to client")
+    global connected
+    connected = True
     while True:
         m = (await reader.readline()).decode('utf8')
         event = [x for x in m.split(';')]
